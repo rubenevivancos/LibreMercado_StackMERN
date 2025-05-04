@@ -1,42 +1,27 @@
-import { Sequelize } from 'sequelize';
-import pg from 'pg';
+import mongoose from 'mongoose';
 
 
-pg.defaults.ssl = {
-  require: true,
-  rejectUnauthorized: false, // En true verifica que el certificado sea válido, en producción debe ser true
-  ca: process.env.CA_CERTIFICATE
+// URL de conexión a MongoDB en Atlas
+const mongoUrl = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/${process.env.MONGO_DB_NAME}`;
+
+
+// Opciones de configuración de conexión
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // Se pueden agregar más opciones
 };
 
-const sequelize = new Sequelize(`postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, {
-  dialect: 'postgres',
-  dialectModule: pg, // Utiliza el cliente de PostgreSQL que es pg
-  logging: false, // set to console.log to see the raw SQL queries
-  native: false // lets Sequelize know we can use pg-native for ~30% more speed
-});
 
-import ProductModel from './Models/Product.js';
-import CategoryModel from './Models/Category.js';
-import ImageModel from './Models/Image.js';
-import UserModel from './Models/User.js';
-
-// Ahora pasamos el objeto sequelize a los modelos al momento de importarlos
-const Product = ProductModel(sequelize); // Llamamos la función que define el modelo, pasándole sequelize
-const Category = CategoryModel(sequelize); // Llamamos la función que define el modelo, pasándole sequelize
-const Image = ImageModel(sequelize); // Llamamos la función que define el modelo, pasándole sequelize
-const User = UserModel(sequelize); // Llamamos la función que define el modelo, pasándole sequelize
-
-// Definir las relaciones entre los modelos de forma explícita
-Product.belongsTo(Category, { foreignKey: 'categoryID' });
-Category.hasMany(Product, { foreignKey: 'categoryID' });
-Product.hasMany(Image, { foreignKey: 'productID' });
-Image.belongsTo(Product, { foreignKey: 'productID' });
-
-sequelize.models = {
-  Product,
-  Category,
-  Image,
-  User
+const mongooseConnection = async () => {
+  console.log("Intentando conectar a MongoDB...");
+  try {
+    await mongoose.connect(mongoUrl, mongooseOptions);
+    console.log('Conexión exitosa a MongoDB');
+  } catch (err) {
+    console.error('Error al conectar a MongoDB:', err.message);
+    process.exit(1);
+  }
 };
 
-export default sequelize;
+export default mongooseConnection;
