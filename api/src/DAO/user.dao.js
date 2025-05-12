@@ -1,15 +1,12 @@
-import sequelize from '../db.js';
-
-const { User } = sequelize.models;
+import User from "../Models/user.model";
 
 
 class UserDAO {
 
-  async registerUser(firebaseUID, name, email, address, city, postalCode) {
+  async registerUser(userData) {
     try {
 
-        const newUser = await User.create({ firebaseUID, name, email, address, city, postalCode });
-        return newUser.dataValues;
+        return await User.create(userData);
 
     } catch (error) {
       console.error('[ user.dao.js ] Error al registrar el usuario: ' + error.message);
@@ -20,8 +17,7 @@ class UserDAO {
   async find(uid) {
     try {
 
-      const user = await User.findOne({ where: { firebase_uid: uid } });
-        return user;
+      return await User.find(id);
 
     } catch (error) {
       console.error('[ user.dao.js ] Error al encontrar el usuario: ' + error.message);
