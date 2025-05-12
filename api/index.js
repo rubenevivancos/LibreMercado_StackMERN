@@ -1,35 +1,14 @@
 import "./src/envConfig.js"; //First, the environment variables must be loaded
 import server from './src/app.js';
-import sequelize from './src/db.js';
+import mongooseConnection from './src/db.js';
 
 
+const port = process.env.MONGO_USER || 8080;
 
-sequelize.sync({ alter: true }).then(() => {
-    server.listen(3001, () => {
-      console.log('%s listening at 3001');
-    });
+
+mongooseConnection();
+
+
+server.listen(port, () => {
+    console.log('Listening on port' + port);
 });
-
-
-
-
-/*
-
-¡¡¡¡¡¡ IMPORTANTE !!!!!!
-
-En PRODUCCION, simplemente se conecta la base de datos sin sincronizar automáticamente.
-
-sequelize.authenticate().then(() => {
-    console.log('Conexión establecida con éxito.');
-    server.listen(3001, () => {
-      console.log('%s listening at 3001');
-    });
-  })
-  .catch((error) => {
-    console.error('Error de conexión:', error);
-  });
-
-
-  En PRODUCCION, se deben usar MIGRACIONES MANUALES para controlar los cambios en la base de datos.
-
-*/
